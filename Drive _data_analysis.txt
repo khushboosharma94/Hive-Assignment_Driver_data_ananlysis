@@ -1,0 +1,212 @@
+ls -l
+
+csv file path: hdfs dfs -put /home/mavricbdhnov0433/drivers.csv
+
+hdfs dfs -put /home/mavricbdhnov0433/timesheet.csv
+
+hdfs dfs -put /home/mavricbdhnov0433/truck_event_text_partition.csv
+
+-rw-rw-r-- 1 mavricbdhnov0433 mavricbdhnov0433 2272077 Nov 29 09:26 truck_event_text_partition (1).csv                                 
+[mavricbdhnov0433@ip-10-1-1-204 ~]$ hdfs dfs -put /home/mavricbdhnov0433/drivers.csv                                                   
+[mavricbdhnov0433@ip-10-1-1-204 ~]$ hdfs dfs -put /home/mavricbdhnov0433/timesheet.csv                                                 
+[mavricbdhnov0433@ip-10-1-1-204 ~]$ hdfs dfs -put /home/mavricbdhnov0433/truck_event_text_partition (1).csv                            
+-bash: syntax error near unexpected token `('                                                                                          
+[mavricbdhnov0433@ip-10-1-1-204 ~]$ hdfs dfs -put /home/mavricbdhnov0433/truck_event_text_partition.csv   
+
+Time taken: 1.687 seconds                                                                                                              
+hive> show databases like '*khushboo*';                                                                                                
+OK                                                                                                                                     
+Time taken: 0.035 seconds   
+
+hive> use khusboosharma;                                                                                                               
+OK                                                                                                                                     
+Time taken: 0.037 seconds 
+
+hive> create external table driver( driverId INT, name STRING, ssn INT, location STRING, certified STRING, wageplan STRING )                                                                                                                                                     row format delimited                                                                                                                                                                                                                            
+fields terminated by ',';
+tblproperties(
+"skip.header.line.count"="1"
+);                                                                                                    
+OK                                                                                                                                     
+Time taken: 0.456 seconds 
+
+to load the data into hive :
+
+LOAD DATA local INPATH 'drivers.csv' OVERWRITE INTO TABLE driver;
+
+hive> LOAD DATA local INPATH 'drivers.csv' OVERWRITE INTO TABLE driver;                                                               
+Loading data to table khusboosharma.driver                                                                                            
+OK                                                                                                                                     
+Time taken: 1.469 seconds   
+
+To see table structure:
+describe driver;
+
+to see the table data:
+
+set hive.cli.print.header=true
+
+select * from driver limit 10;  
+
+create external table timesheet(driverId int, week int, hourslogged int, mileslogged int)                                                                                                                                                  
+row format delimited                                                                                                                                                                                                                       
+fields terminated by ','
+tblproperties(
+"skip.header.line.count"="1"
+); 
+
+hive> describe timesheet;                                                                                                              
+OK                                                                                                                                     
+col_name        data_type       comment                                                                                                
+driverid                int                                                                                                            
+week                    int                                                                                                            
+hourslogged             int                                                                                                            
+mileslogged             int                                                                                                            
+Time taken: 0.086 seconds, Fetched: 4 row(s)                                                                                           
+hive>                                        
+
+LOAD DATA local INPATH 'timesheet.csv' OVERWRITE INTO TABLE timesheet;
+
+to see the table data:
+
+set hive.cli.print.header=true;
+
+select * from timesheet limit 10;
+
+hive>  create table truck_event(driverId int, truckId int, eventTime date, eventType string, longitude float, latitude float, eventKey int,CorrelationId int, driverName string, routeId int, routeName int, eventDate int)                                                                                                                                        row format delimited                                                                                                                                                                                                                          
+fields terminated by ',';                                                                                                        
+OK                                                                                                                                     
+Time taken: 0.164 seconds 
+
+describe truck_event_text_partition; 
+LOAD DATA local INPATH 'truck_event_text_partition.csv' OVERWRITE INTO TABLE truck_event;
+
+hive> hive> LOAD DATA local INPATH 'truck_event_text_partition.csv' OVERWRITE INTO TABLE truck_event;                                        
+Loading data to table default.truck_event                                                                                              
+OK                                                                                                                                     
+Time taken: 1.305 seconds                                                                                                              
+hive> describe truck_event;                                                                                                            
+OK                                                                                                                                     
+driverid                int                                                                                                            
+truckid                 int                                                                                                            
+eventtime               timestamp                                                                                                      
+eventtype               string                                                                                                         
+longitude               float                                                                                                          
+latitude                float                                                                                                          
+eventkey                int                                                                                                            
+correlationid           int                                                                                                            
+drivername              string                                                                                                         
+routeid                 int                                                                                                            
+routename               int                                                                                                            
+eventdate               date                                                                                                           
+Time taken: 0.159 seconds, Fetched: 12 row(s)     
+
+select * from truck_event;
+
+
+Create external tables for drivers and timesheet data and answer the following queries
+
+Query:1
+
+How many total hours and miles logged by each driver?
+
+set hive.cli.print.header=true;
+
+Select d.driverId,sum(t.hourslogged) as total_hours,sum(t.mileslogged) as total_miles
+FROM driver d
+JOIN timesheet t
+ON d.driverId = t.driverId
+GROUP BY d.driverId;
+
+d.driverid      total_hours     total_miles                                                                                            
+10      3232    147150                                                                                                                 
+11      3642    179300                                                                                                                 
+12      2639    135962                                                                                                                 
+13      2727    134126                                                                                                                 
+14      2781    136624                                                                                                                 
+15      2734    138750                                                                                                                 
+16      2746    137205                                                                                                                 
+17      2701    135992                                                                                                                 
+18      2654    137834                                                                                                                 
+19      2738    137968                                                                                                                 
+20      2644    134564                                                                                                                 
+21      2751    138719                                                                                                                 
+22      2733    137550                                                                                                                 
+23      2750    137980                                                                                                                 
+24      2647    134461                                                                                                                 
+25      2723    139180                                                                                                                 
+26      2730    137530                                                                                                                 
+27      2771    137922                                                                                                                 
+28      2723    137469                                                                                                                 
+29      2760    138255                                                                                                                 
+30      2773    137473                                                                                                                 
+31      2704    137057                                                                                                                 
+32      2736    137422                                                                                                                 
+33      2759    139285                                                                                                                 
+34      2811    137728                                                                                                                 
+35      2728    138727                                                                                                                 
+36      2795    138025                                                                                                                 
+37      2694    137223                                                                                                                 
+38      2760    137464                                                                                                                 
+39      2745    138788                                                                                                                 
+40      2700    136931                                                                                                                 
+41      2723    138407                                                                                                                 
+42      2697    136673                                                                                                                 
+43      2750    136993                                                                                                                 
+Time taken: 47.563 seconds, Fetched: 34 row(s)  
+
+Query:2
+Print the name of the driver in the above query
+
+set hive.cli.print.header=true;
+
+Select d.driverId,d.name,sum(t.hourslogged) as total_hours,sum(t.mileslogged) as total_miles
+FROM driver d
+JOIN timesheet t
+ON d.driverId = t.driverId
+GROUP BY d.driverId,d.name;
+
+Stage-Stage-2: Map: 1  Reduce: 1   Cumulative CPU: 13.91 sec   HDFS Read: 39118 HDFS Write: 1456 HDFS EC Read: 0 SUCCESS               
+Total MapReduce CPU Time Spent: 13 seconds 910 msec                                                                                    
+OK                                                                                                                                     
+d.driverid      d.name  total_hours     total_miles                                                                                    
+10      George Vetticaden       3232    147150                                                                                         
+11      Jamie Engesser  3642    179300                                                                                                 
+12      Paul Coddin     2639    135962                                                                                                 
+13      Joe Niemiec     2727    134126                                                                                                 
+14      Adis Cesir      2781    136624                                                                                                 
+15      Rohit Bakshi    2734    138750                                                                                                 
+16      Tom McCuch      2746    137205                                                                                                 
+17      Eric Mizell     2701    135992                                                                                                 
+18      Grant Liu       2654    137834                                                                                                 
+19      Ajay Singh      2738    137968                                                                                                 
+20      Chris Harris    2644    134564                                                                                                 
+21      Jeff Markham    2751    138719                                                                                                 
+22      Nadeem Asghar   2733    137550                                                                                                 
+23      Adam Diaz       2750    137980                                                                                                 
+24      Don Hilborn     2647    134461                                                                                                 
+25      Jean-Philippe Playe     2723    139180                                                                                         
+26      Michael Aube    2730    137530                                                                                                 
+27      Mark Lochbihler 2771    137922                                                                                                 
+28      Olivier Renault 2723    137469                                                                                                 
+29      Teddy Choi      2760    138255                                                                                                 
+30      Dan Rice        2773    137473                                                                                                 
+31      Rommel Garcia   2704    137057                                                                                                 
+32      Ryan Templeton  2736    137422                                                                                                 
+33      Sridhara Sabbella       2759    139285                                                                                         
+34      Frank Romano    2811    137728                                                                                                 
+35      Emil Siemes     2728    138727                                                                                                 
+36      Andrew Grande   2795    138025                                                                                                 
+37      Wes Floyd       2694    137223                                                                                                 
+38      Scott Shaw      2760    137464                                                                                                 
+39      David Kaiser    2745    138788                                                                                                 
+40      Nicolas Maillard        2700    136931                                                                                         
+41      Greg Phillips   2723    138407                                                                                                 
+42      Randy Gelhausen 2697    136673                                                                                                 
+43      Dave Patton     2750    136993                                                                                                 
+Time taken: 45.886 seconds, Fetched: 34 row(s)                                                                                         
+hive>                                          
+
+
+Query:
+Write the above query output in to hdfs directory
